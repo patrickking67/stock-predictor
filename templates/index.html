@@ -1,71 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Predictor</title>
-    <link rel="stylesheet" href="./static/style.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/about">About</a></li>
-                <li><a href="/contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <main>
-        <h1>Stock Predictor</h1>
-        <div class="input-container">
-            <input type="text" id="stockSymbol" placeholder="Enter Company or Stock">
-            <button onclick="getStockData()">Predict</button>
-        </div>
-        
-        <div id="stockData"></div>
+{% extends "base.html" %}
+{% block title %}Stock Predictor{% endblock %}
+{% block content %}
+<section class="intro" aria-labelledby="page-title">
+    <h1 id="page-title">Draw one straight line through a year of prices.</h1>
+    <p class="lede">Enter a ticker. The app fits a single straight line to the last year of daily closes and extends it {{ forecast_days }} trading days. That is the whole model, so treat the result as a picture of last year's trend, not a forecast.</p>
 
-        <div id="stockInfo">
-            <h2>Stock Information</h2>
-            <p><strong>Company:</strong> <span id="companyName"></span></p>
-            <p><strong>Symbol:</strong> <span id="stockSymbol"></span></p>
-            <p><strong>Real-time Price:</strong> $<span id="realTimePrice"></span></p>
+    <form id="predict-form" class="predict-form" action="{{ url_for('index') }}" method="get" novalidate>
+        <label for="symbol">Ticker symbol</label>
+        <div class="field-row">
+            <input id="symbol" name="symbol" type="text" list="symbol-suggestions" required maxlength="15"
+                   autocomplete="off" autocapitalize="characters" spellcheck="false"
+                   placeholder="AAPL" aria-describedby="symbol-hint">
+            <datalist id="symbol-suggestions"></datalist>
+            <button id="submit" type="submit">Fit the line</button>
         </div>
-        
-        <div id="graph">
-            <h2>Stock Price History</h2>
-            <div class="centered-select">
-                <select id="timeRange">
-                    <option value="1d">1 Day</option>
-                    <option value="5d">5 Days</option>
-                    <option value="1M">1 Month</option>
-                    <option value="3M">3 Months</option>
-                    <option value="MAX">All Time</option>
-                </select>
-            </div>
-            <canvas id="stockChart" width="400" height="200"></canvas>
-        </div>
+        <p id="symbol-hint" class="hint">
+            Try
+            <button type="button" class="pick" data-symbol="AAPL">AAPL</button>,
+            <button type="button" class="pick" data-symbol="MSFT">MSFT</button> or
+            <button type="button" class="pick" data-symbol="^GSPC">^GSPC</button> (the S&amp;P 500 index).
+        </p>
+    </form>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+</section>
 
-        <div id="predictions">
-            <h2>Predicted Stock Prices</h2>
-            <p><strong>1 Day:</strong> $<span id="prediction1d"></span></p>
-            <p><strong>5 Days:</strong> $<span id="prediction5d"></span></p>
-            <p><strong>1 Month:</strong> $<span id="prediction1M"></span></p>
-            <p><strong>3 Months:</strong> $<span id="prediction3M"></span></p>
-            <p><strong>6 Months:</strong> $<span id="prediction6M"></span></p>
+<section class="result" aria-labelledby="result-title">
+    <h2 id="result-title">Your line</h2>
+    <figure class="chart-paper">
+        <div id="chart-empty" class="chart-empty">
+            <svg viewBox="0 0 600 240" role="img" aria-label="Example: a jagged price line with one straight line drawn through it and continued past the last price.">
+                <polyline class="ex-price" points="10,170 40,150 70,160 100,120 130,135 160,110 190,140 220,100 250,115 280,80 310,105 340,90 370,120 400,70 430,95 460,60"/>
+                <line class="ex-trend" x1="10" y1="168" x2="460" y2="70"/>
+                <line class="ex-trend ex-future" x1="460" y1="70" x2="590" y2="42"/>
+                <rect class="ex-zone" x="460" y="10" width="130" height="220"/>
+            </svg>
+            <p>Your chart will appear here: the year of closes in blue and the straight line in red, continued into the shaded days.</p>
         </div>
-        
-    </main>
-    
-    <script src="./static/script.js"></script>
-</body>
-<footer>
-    <p>Stock Predictor © 2023 | Created by Patrick King</p>
-</footer>
-</html>
+        <div id="chart-wrap" class="chart-wrap" hidden>
+            <canvas id="stockChart" role="img" aria-label="Price chart"></canvas>
+        </div>
+        <figcaption id="chart-caption" hidden></figcaption>
+    </figure>
 
+    <div id="result-body" hidden>
+        <dl class="facts">
+            <div><dt>Last price</dt><dd id="latest-price"></dd><dd id="latest-meta" class="meta"></dd></div>
+            <div><dt>Slope of the line</dt><dd id="slope"></dd><dd class="meta">per trading day, fitted to the past year</dd></div>
+            <div><dt>How straight the past year was</dt><dd id="r-squared"></dd><dd class="meta">R squared, 1 means a perfect line. This is not forecast accuracy.</dd></div>
+        </dl>
+
+        <table class="projection">
+            <caption>Where the line lands, if you extend it</caption>
+            <thead><tr><th scope="col">Trading days ahead</th><th scope="col">Price on the line</th></tr></thead>
+            <tbody id="projection-rows"></tbody>
+        </table>
+
+        <ul id="notices" class="notices"></ul>
+        <p class="caveat">A straight line ignores earnings, news, interest rates and volatility. Real prices will not follow it. <a href="{{ url_for('about') }}">Read how it works and its limits.</a></p>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha256-SERKgtTty1vsDxll+qzd4Y2cF9swY9BCq62i9wXJ9Uo=" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% endblock %}

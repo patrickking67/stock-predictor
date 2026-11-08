@@ -1,0 +1,18 @@
+# Stock Predictor
+
+> Educational Flask app that fits one straight line (ordinary least squares on the day number) through a year of daily closing prices from Yahoo Finance and extends it five trading days. Not financial advice; predictions are not reliable and no accuracy has been measured. Alpha Vantage is optional and only used server side for company names, quotes and symbol search.
+
+## Docs
+
+- [README](https://github.com/patrickking67/stock-predictor/blob/main/README.md): features, how the prediction works, quickstart, routes, tests
+- [AGENTS.md](https://github.com/patrickking67/stock-predictor/blob/main/AGENTS.md): layout, exact commands, conventions and safety rules for coding agents
+- [CONTRIBUTING](https://github.com/patrickking67/stock-predictor/blob/main/CONTRIBUTING.md): setup, branches, commits, PR checklist
+- [SECURITY](https://github.com/patrickking67/stock-predictor/blob/main/SECURITY.md): private vulnerability reporting
+- [CHANGELOG](https://github.com/patrickking67/stock-predictor/blob/main/CHANGELOG.md): release history
+
+## Code
+
+- [main.py](https://github.com/patrickking67/stock-predictor/blob/main/main.py): Flask routes, input validation, data fetching and the linear model
+- [static/script.js](https://github.com/patrickking67/stock-predictor/blob/main/static/script.js): front end, chart and suggestions
+- [tests](https://github.com/patrickking67/stock-predictor/tree/main/tests): offline pytest suite
+- [scripts/check.sh](https://github.com/patrickking67/stock-predictor/blob/main/scripts/check.sh): the one check command

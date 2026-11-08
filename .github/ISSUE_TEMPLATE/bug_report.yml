@@ -1,0 +1,32 @@
+name: Bug report
+description: Something does not work as described.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include the symbol you entered and any error message shown.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Run scripts/dev.sh\n2. Enter AAPL\n3. ..."
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Python version and OS
+      placeholder: "Python 3.12 on macOS 15"
+  - type: markdown
+    attributes:
+      value: Do not paste API keys. Report security problems privately, see SECURITY.md.

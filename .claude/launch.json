@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "stock-predictor-site",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["scripts/dev.sh"],
+      "port": 4110
+    }
+  ]
+}

@@ -1,30 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>About - Stock Predictor</title>
-    <link rel="stylesheet" href="./static/style.css">
-</head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/about">About</a></li>
-                <li><a href="/contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <main>
-        <h1>About</h1>
-        <img src="path_to_your_image.jpg" alt="Your Image" style="width:200px; height:auto;">
-        <p><strong>Your Name</strong></p>
-        <p>Here you can add your bio or any information about yourself or the project. This could include your background, what inspired this project, and any other details you think would be relevant for users to know.</p>
-    </main>
-    
-    <footer>
-        <p>Stock Predictor © 2023 | Created by Patrick King</p>
-    </footer>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}How it works - Stock Predictor{% endblock %}
+{% block content %}
+<article class="prose" aria-labelledby="page-title">
+    <h1 id="page-title">How the prediction is made</h1>
+    <p class="lede">It is a ruler laid across a chart. Here is exactly what the app does, and why you should not trade on it.</p>
+
+    <h2>The steps</h2>
+    <ol>
+        <li>Download about a year of daily closing prices (adjusted for splits and dividends) from Yahoo Finance using the yfinance library.</li>
+        <li>Number the trading days 0, 1, 2 and so on, and fit one straight line, price = a + b &times; day, by ordinary least squares (scikit-learn's <code>LinearRegression</code>).</li>
+        <li>Extend that line {{ forecast_days }} trading days past the last close and report the values on the line.</li>
+    </ol>
+
+    <h2>What the numbers mean</h2>
+    <p><strong>Slope</strong> is how many dollars per trading day the line rises or falls. <strong>R squared</strong> says how closely last year's prices hugged a straight line, from 0 (not at all) to 1 (perfectly). It is measured on the same data the line was fitted to, so it says nothing about how well the line predicts the future.</p>
+
+    <h2>Limits</h2>
+    <ul>
+        <li>No accuracy has been measured. There is no backtest.</li>
+        <li>The model knows nothing except the date and last year's closes. Earnings, news, rates, volatility and the rest of the market are ignored.</li>
+        <li>A straight line keeps going forever. Prices do not.</li>
+        <li>Data can be delayed, missing or wrong, and the free data sources can rate limit or fail.</li>
+    </ul>
+
+    <h2>Data sources</h2>
+    <p>Price history comes from Yahoo Finance through yfinance. If the server has an <code>ALPHA_VANTAGE_API_KEY</code>, it also shows the company name, a latest quote and symbol suggestions from Alpha Vantage. The key stays on the server; the browser only talks to this app.</p>
+
+    <p class="callout"><strong>Educational project, not financial advice.</strong> Predictions are not reliable and are never a recommendation to buy or sell.</p>
+</article>
+{% endblock %}
