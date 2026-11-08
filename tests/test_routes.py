@@ -4,9 +4,28 @@ from tests.conftest import FakeResponse, price_frame
 CLOSES = [100.0 + i for i in range(30)]
 
 
-def test_index_renders(client):
+def test_index_renders_with_disclaimer(client):
     response = client.get("/")
     assert response.status_code == 200
+    body = response.get_data(as_text=True)
+    assert "Educational project, not financial advice." in body
+    assert "Predictions are not reliable." in body
+    assert "alphavantage.co" not in body
+
+
+def test_about_explains_the_model_and_limits(client):
+    response = client.get("/about")
+    assert response.status_code == 200
+    body = response.get_data(as_text=True)
+    assert "LinearRegression" in body
+    assert "No accuracy has been measured." in body
+    assert "not financial advice" in body
+
+
+def test_static_script_never_calls_alpha_vantage(client):
+    script = client.get("/static/script.js").get_data(as_text=True)
+    assert "alphavantage" not in script.lower()
+    assert "apikey" not in script.lower()
 
 
 def test_predict_requires_a_symbol(client):

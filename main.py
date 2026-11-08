@@ -182,6 +182,11 @@ def index():
     return render_template("index.html", disclaimer=DISCLAIMER, forecast_days=FORECAST_DAYS)
 
 
+@app.route("/about")
+def about():
+    return render_template("about.html", disclaimer=DISCLAIMER, forecast_days=FORECAST_DAYS)
+
+
 @app.route("/symbol_search")
 def symbol_search():
     """Server-side proxy so the API key never reaches the browser."""

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Stock Predictor{% endblock %}</title>
+    <meta name="description" content="An educational Flask demo that fits a straight line to a year of daily closing prices and extends it five trading days. Not financial advice.">
+    <meta name="theme-color" content="#004d99">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ self.title() }}">
+    <meta property="og:description" content="Fit one straight line through a year of stock prices and see why it is not a forecast. Educational project, not financial advice.">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;800&display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+        <div class="wrap header-inner">
+            <a class="wordmark" href="{{ url_for('index') }}">
+                <svg aria-hidden="true" width="28" height="28" viewBox="0 0 28 28"><path d="M3 21 9 14l5 4 5-9 6 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M2 22 26 7" stroke="#ff9aa2" stroke-width="2" stroke-dasharray="3 2"/></svg>
+                Stock Predictor
+            </a>
+            <nav aria-label="Main">
+                <ul>
+                    <li><a href="{{ url_for('index') }}"{% if request.endpoint == 'index' %} aria-current="page"{% endif %}>Fit a line</a></li>
+                    <li><a href="{{ url_for('about') }}"{% if request.endpoint == 'about' %} aria-current="page"{% endif %}>How it works</a></li>
+                    <li><a href="https://github.com/patrickking67/stock-predictor">Source</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <aside class="notice" aria-label="Disclaimer">
+        <p class="wrap"><strong>Educational project, not financial advice.</strong> Predictions are not reliable. Nothing here is a recommendation to buy or sell.</p>
+    </aside>
+
+    <main id="main" class="wrap">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="wrap">
+            <p>Built by Patrick King, 2023, revised 2026. MIT license. Prices from Yahoo Finance through yfinance; names and quotes from Alpha Vantage when the server has a key.</p>
+        </div>
+    </footer>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
