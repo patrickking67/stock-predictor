@@ -1,0 +1,19 @@
+name: Feature request
+description: Suggest an improvement.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would this help with
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Proposed change
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: This is an educational project. Features that present output as financial advice will not be added.
