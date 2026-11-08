@@ -32,31 +32,17 @@ function selectDemoStock(stockSymbol) {
 $("#stockSymbol").autocomplete({
     source: function(request, response) {
         $.ajax({
-            url: "https://www.alphavantage.co/query",
+            url: "/symbol_search",
             dataType: "json",
-            data: {
-                function: "SYMBOL_SEARCH",
-                keywords: request.term,
-                apikey: "4X643L12DIZEYYH3"
-            },
+            data: { q: request.term },
             success: function(data) {
-                if (data.bestMatches && Array.isArray(data.bestMatches)) {
-                    var suggestions = data.bestMatches.map(function(match) {
-                        return match["1. symbol"] + " - " + match["2. name"];
-                    });
-                    response(suggestions);
-                } else {
-                    console.warn("API response:", data);
-                    if (data.Information) {
-                        // Handle rate limit or other API information messages
-                        alert(data.Information);
-                    } else {
-                        console.error("Invalid data format from API");
-                    }
-                }
+                response((data.matches || []).map(function(match) {
+                    return match.symbol + " - " + match.name;
+                }));
             },
             error: function(xhr, status, error) {
                 console.error("AJAX Error:", status, error);
+                response([]);
             }
         });
     },

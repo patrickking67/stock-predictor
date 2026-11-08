@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, request, jsonify
 import requests
 import yfinance as yf
@@ -6,7 +8,7 @@ import numpy as np
 
 app = Flask(__name__)
 
-ALPHA_VANTAGE_API_KEY = '4X643L12DIZEYYH3'
+ALPHA_VANTAGE_API_KEY = os.environ.get("ALPHA_VANTAGE_API_KEY", "")
 
 def fetch_real_time_stock_price(symbol):
     symbol = symbol.split('-')[0].strip()
@@ -62,6 +64,24 @@ def predict_future_prices(symbol, days=5):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/symbol_search')
+def symbol_search():
+    # Server-side proxy so the API key never reaches the browser.
+    keywords = request.args.get('q', '').strip()
+    if not keywords or not ALPHA_VANTAGE_API_KEY:
+        return jsonify({"matches": []})
+    response = requests.get(
+        'https://www.alphavantage.co/query',
+        params={'function': 'SYMBOL_SEARCH', 'keywords': keywords, 'apikey': ALPHA_VANTAGE_API_KEY},
+        timeout=10,
+    )
+    data = response.json()
+    matches = [
+        {"symbol": m.get("1. symbol"), "name": m.get("2. name")}
+        for m in data.get("bestMatches", [])
+    ]
+    return jsonify({"matches": matches})
 
 @app.route('/predict_stock')
 def predict_stock():
