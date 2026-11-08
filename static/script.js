@@ -1,22 +1,15 @@
 function getStockData() {
     const symbol = document.getElementById('stockSymbol').value;
-    fetch(`/predict_stock?symbol=${symbol}`)
-        .then(response => {
-            if (!response.ok) {
-            throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+    fetch(`/predict_stock?symbol=${encodeURIComponent(symbol)}`)
+        .then(response => response.json())
         .then(data => {
-            console.log("Response data:", data);
-            if (data.error || !data.company_name) {
-                console.error('Error fetching data:', data.error || 'No company name');
+            if (data.error) {
+                console.error('Error fetching data:', data.error);
                 return;
             }
-            document.getElementById('companyName').textContent = data.company_name;
-            document.getElementById('stockSymbol').textContent = data.stock_symbol;
-            document.getElementById('realTimePrice').textContent = data.stock_price.toFixed(2);
-            createStockGraph(data.historical_data);
+            document.getElementById('companyName').textContent = data.company_name || data.symbol;
+            document.getElementById('realTimePrice').textContent = data.latest.price.toFixed(2);
+            createStockGraph(data.history);
 
             // Display Predictions
             document.getElementById('prediction1d').textContent = `$${data.predictions[0].toFixed(2)}`;
@@ -54,12 +47,10 @@ $("#stockSymbol").autocomplete({
 
 
 
-function createStockGraph(historicalData) {
+function createStockGraph(history) {
     var stockChart = document.getElementById('stockChart').getContext('2d');
-    var labels = Object.keys(historicalData).reverse();
-    var dataPoints = labels.map(function(label) {
-        return parseFloat(historicalData[label]["1. open"]);
-    });
+    var labels = history.map(function(point) { return point.date; });
+    var dataPoints = history.map(function(point) { return point.close; });
 
     new Chart(stockChart, {
         type: 'line',
