@@ -6,4 +6,4 @@ pandas==3.1.1
 scikit-learn==1.9.1
 # numpy 2.5 needs Python 3.12; 2.4 is the last line that supports 3.11.
 numpy==2.4.6; python_version < "3.12"
-numpy==2.5.4; python_version >= "3.12"
+numpy==2.5.5; python_version >= "3.12"
