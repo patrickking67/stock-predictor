@@ -23,6 +23,7 @@ An educational Flask app. It fits one straight line (least squares on the day nu
 | `static/script.js` | Form handling, chart, suggestions. Calls only this app's routes |
 | `static/style.css` | All styles. Colors are CSS variables at the top |
 | `tests/` | Offline pytest suite. `conftest.py` blocks real network calls |
+| `site/` | Static Pages demo on simulated prices. `fit.js` mirrors `main.py`; `site/tests/` checks parity |
 | `scripts/check.sh` | The one check command |
 | `scripts/dev.sh` | Dev server on 127.0.0.1:4110 |
 | `.claude/launch.json` | Preview config pointing at `scripts/dev.sh`, port 4110 |

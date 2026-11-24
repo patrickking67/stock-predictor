@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stock Predictor: one straight line through a year of prices</title>
+    <meta name="description" content="An educational demo that fits one straight line to a year of prices and shows, with a walk-forward test, why that is not a forecast. Not financial advice.">
+    <meta name="theme-color" content="#004d99">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Stock Predictor: one straight line through a year of prices">
+    <meta property="og:description" content="Fit a straight line to simulated prices and test it against a naive guess. Educational project, not financial advice.">
+    <meta property="og:url" content="https://patrickking67.github.io/stock-predictor/">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <p class="banner" role="note"><strong>Educational project, not financial advice.</strong> Nothing on this page is a recommendation to buy or sell. The prices below are simulated.</p>
+    <header class="wrap top">
+        <span class="wordmark">Stock Predictor</span>
+        <nav aria-label="Main">
+            <a href="#demo">Demo</a>
+            <a href="#how">How it works</a>
+            <a href="#run">Run it</a>
+            <a href="https://github.com/patrickking67/stock-predictor">Source</a>
+        </nav>
+    </header>
+
+    <main id="main">
+        <section class="wrap hero" aria-labelledby="title">
+            <h1 id="title">Draw one straight line through a year of prices.</h1>
+            <p class="lede">A small Flask app that fits a single straight line to a year of daily closes and extends it five trading days. It exists to show how little that tells you, and to measure it.</p>
+            <p><a class="button" href="#demo">Try the demo</a> <a class="button ghost" href="#run">Run the real app</a></p>
+        </section>
+
+        <section id="demo" class="wrap" aria-labelledby="demo-title">
+            <h2 id="demo-title">Demo on simulated prices</h2>
+            <p>Each run is a random walk with no trend built in, so any line you see is chance. The line is fitted to the first 252 days and continued five days. The real app runs the same method in Python on Yahoo Finance data. This page never loads real prices.</p>
+            <form id="demo-form" class="controls">
+                <label for="seed">Simulation number</label>
+                <input id="seed" name="seed" type="number" min="1" max="999999" value="7" inputmode="numeric">
+                <button type="submit">Run</button>
+                <button type="button" id="again">Another one</button>
+            </form>
+            <figure class="chart-paper">
+                <svg id="chart" viewBox="0 0 640 280" role="img" aria-labelledby="chart-caption"></svg>
+                <figcaption id="chart-caption">Loading the demo.</figcaption>
+            </figure>
+            <noscript><p class="callout">The demo needs JavaScript. The real app does not.</p></noscript>
+            <dl class="facts" id="facts" aria-live="polite"></dl>
+            <p id="backtest-text" class="backtest" aria-live="polite"></p>
+        </section>
+
+        <section id="how" class="wrap prose" aria-labelledby="how-title">
+            <h2 id="how-title">How it works</h2>
+            <ol>
+                <li>Download about a year of daily closes (adjusted) from Yahoo Finance with yfinance.</li>
+                <li>Number the days 0, 1, 2 and so on and fit <code>price = a + b &times; day</code> by least squares.</li>
+                <li>Extend the line five trading days past the last close.</li>
+                <li>Replay the year: every fifth day from day 20, fit a line to the prices so far, extend it five days and compare with what happened. Score a naive guess (the last close stays) the same way.</li>
+            </ol>
+            <p>The backtest uses the same year the page shows. It is a sanity check, not proof the line will work. Free data can be late, wrong or missing, and the model ignores earnings, news, rates and volatility.</p>
+        </section>
+
+        <section id="run" class="wrap prose" aria-labelledby="run-title">
+            <h2 id="run-title">Run the real app</h2>
+            <p>Needs Python 3.11 or newer. There is no hosted version.</p>
+<pre><code>git clone https://github.com/patrickking67/stock-predictor.git
+cd stock-predictor
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-dev.txt
+scripts/dev.sh   # http://127.0.0.1:4110</code></pre>
+            <p>An Alpha Vantage key is optional and stays on the server. Never put a key in a web page.</p>
+        </section>
+    </main>
+
+    <footer class="wrap foot">
+        <p><strong>Educational project, not financial advice.</strong> Predictions are not reliable. MIT licensed. <a href="https://github.com/patrickking67/stock-predictor">Source on GitHub</a>.</p>
+    </footer>
+    <script type="module" src="demo.js"></script>
+</body>
+</html>

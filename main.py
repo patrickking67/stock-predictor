@@ -25,6 +25,7 @@ HTTP_TIMEOUT_SECONDS = 10
 HISTORY_PERIOD = "1y"
 FORECAST_DAYS = 5
 MIN_HISTORY_POINTS = 20
+BACKTEST_STRIDE = 5
 
 DISCLAIMER = (
     "Educational project, not financial advice. Predictions are not reliable: "
@@ -116,6 +117,46 @@ def predict_future_prices(closes: list[float], days: int = FORECAST_DAYS) -> dic
     }
 
 
+def backtest_line(
+    closes: list[float],
+    days: int = FORECAST_DAYS,
+    min_train: int = MIN_HISTORY_POINTS,
+    stride: int = BACKTEST_STRIDE,
+) -> dict | None:
+    """Walk forward through the history and score the straight line against a naive guess.
+
+    At each origin the line is fitted to the closes seen so far and extended `days`
+    steps. The naive guess is "the price stays at the last close". Errors are the
+    mean absolute error over those `days` steps, in price units. Returns None when
+    the history is too short for even one window.
+
+    This measures the same line on past data only. It is not a promise about the future.
+    """
+    if days < 1 or stride < 1:
+        raise ValueError("days and stride must be at least 1")
+    y = np.asarray(closes, dtype=float)
+    line_errors: list[float] = []
+    naive_errors: list[float] = []
+    for origin in range(min_train, len(y) - days + 1, stride):
+        train = y[:origin]
+        slope, intercept = np.polyfit(np.arange(origin), train, 1)
+        future_x = np.arange(origin, origin + days)
+        actual = y[origin : origin + days]
+        line_errors.append(float(np.mean(np.abs(slope * future_x + intercept - actual))))
+        naive_errors.append(float(np.mean(np.abs(train[-1] - actual))))
+    if not line_errors:
+        return None
+    line_arr = np.asarray(line_errors)
+    naive_arr = np.asarray(naive_errors)
+    return {
+        "windows": len(line_errors),
+        "horizon_days": days,
+        "line_mae": round(float(line_arr.mean()), 4),
+        "naive_mae": round(float(naive_arr.mean()), 4),
+        "line_beat_naive_pct": round(float(np.mean(line_arr < naive_arr)) * 100, 1),
+    }
+
+
 def alpha_vantage_query(function: str, **params: str) -> dict:
     """Call Alpha Vantage with the server's key. Raise DataSourceError on any failure."""
     key = alpha_vantage_key()
@@ -184,7 +225,13 @@ def index():
 
 @app.route("/about")
 def about():
-    return render_template("about.html", disclaimer=DISCLAIMER, forecast_days=FORECAST_DAYS)
+    return render_template(
+        "about.html",
+        disclaimer=DISCLAIMER,
+        forecast_days=FORECAST_DAYS,
+        min_history=MIN_HISTORY_POINTS,
+        stride=BACKTEST_STRIDE,
+    )
 
 
 @app.route("/symbol_search")
@@ -206,7 +253,9 @@ def predict_stock():
     try:
         symbol = normalize_symbol(request.args.get("symbol"))
         history = fetch_price_history(symbol)
-        model = predict_future_prices([close for _, close in history])
+        closes = [close for _, close in history]
+        model = predict_future_prices(closes)
+        backtest = backtest_line(closes)
     except InvalidSymbolError as exc:
         return error_response(str(exc), 400)
     except NoDataError as exc:
@@ -250,6 +299,7 @@ def predict_stock():
                 "slope_per_day": model["slope_per_day"],
                 "r_squared": model["r_squared"],
             },
+            "backtest": backtest,
             "notices": notices,
             "disclaimer": DISCLAIMER,
         }

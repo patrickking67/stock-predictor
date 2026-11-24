@@ -81,6 +81,8 @@
             rows.append(tr);
         });
 
+        renderBacktest(data.backtest);
+
         var notices = document.getElementById("notices");
         notices.replaceChildren();
         (data.notices || []).forEach(function (text) {
@@ -103,6 +105,23 @@
         document.getElementById("chart-wrap").hidden = false;
         document.getElementById("result-body").hidden = false;
         drawChart(data, caption.textContent);
+    }
+
+    function renderBacktest(backtest) {
+        var section = document.getElementById("backtest");
+        if (!backtest) {
+            section.hidden = true;
+            return;
+        }
+        var verdict = backtest.line_mae < backtest.naive_mae
+            ? "The line was closer than the naive guess on average."
+            : "The naive guess was closer than the line on average.";
+        document.getElementById("backtest-summary").textContent =
+            "Over " + backtest.windows + " past " + backtest.horizon_days + "-day windows, the line missed by " +
+            money.format(backtest.line_mae) + " on average. Guessing that the price would not move missed by " +
+            money.format(backtest.naive_mae) + ". " + verdict + " The line was closer in " +
+            backtest.line_beat_naive_pct + "% of windows.";
+        section.hidden = false;
     }
 
     // Shades the projected days so the extended line reads as "beyond the data".
