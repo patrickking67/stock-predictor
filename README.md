@@ -6,7 +6,7 @@
 A small Flask app that fits one straight line through a year of daily stock prices and extends it five trading days.
 
 > **Educational project, not financial advice. Predictions are not reliable.**
-> The "prediction" is a straight line through last year's closing prices. Nothing here is a recommendation to buy or sell, and no accuracy has been measured.
+> The "prediction" is a straight line through last year's closing prices. Nothing here is a recommendation to buy or sell. A walk-forward test on past prices is the only accuracy check, and it does not promise anything about the future.
 
 There is no hosted version. It runs locally.
 
@@ -16,6 +16,7 @@ There is no hosted version. It runs locally.
 - Shows the slope of the line per trading day, the in-sample R squared, and the line's value for each of the next five trading days.
 - Clear messages for bad symbols, unknown symbols, short histories and data-source outages instead of crashes.
 - Works without any API key. With an optional Alpha Vantage key on the server it also shows the company name, a latest quote and symbol suggestions. The key never reaches the browser.
+- A walk-forward backtest that replays the year and compares the line with a naive "price stays put" guess, so you can see when the line is no better than doing nothing.
 - A How it works page that explains the method and its limits.
 
 ## How the prediction works
@@ -24,9 +25,11 @@ There is no hosted version. It runs locally.
 2. Number the trading days 0, 1, 2, ... and fit `price = a + b * day` by ordinary least squares with scikit-learn's `LinearRegression`.
 3. Extend the line five trading days past the last close.
 
+4. Replay the year (`backtest_line`): at every fifth day from day 20 on, fit a line to the prices so far, extend it five days, and compare with what happened. A naive guess (the last close stays) is scored the same way.
+
 Limits:
 
-- No backtest, no measured accuracy.
+- The backtest uses the same year the page shows. It is a sanity check, not proof of accuracy.
 - It ignores earnings, news, rates, volatility and the rest of the market. A straight line keeps going forever; prices do not.
 - R squared only says how closely last year's prices followed a line. It is measured on the training data and says nothing about forecast accuracy.
 - Free data sources can be delayed, wrong, rate limited or down.
@@ -71,7 +74,7 @@ Routes:
 | --- | --- |
 | `GET /` | The main page |
 | `GET /about` | How it works and limits |
-| `GET /predict_stock?symbol=AAPL` | JSON: history, fitted line, five projected values, slope, R squared, notices. 400 bad symbol, 404 no data, 502 data source failed |
+| `GET /predict_stock?symbol=AAPL` | JSON: history, fitted line, five projected values, slope, R squared, backtest (null when the history is short), notices. 400 bad symbol, 404 no data, 502 data source failed |
 | `GET /symbol_search?q=apple` | JSON symbol suggestions proxied from Alpha Vantage. 503 when no key is configured |
 
 ## Tests

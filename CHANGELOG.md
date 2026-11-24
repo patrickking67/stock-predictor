@@ -17,6 +17,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- `backtest_line` replays the year with a walk-forward test and compares the straight line with a "price stays put" guess. The result is in the `/predict_stock` response as `backtest`, shown on the main page and explained on the About page.
 - Works without an API key; Alpha Vantage is optional and proxied through `/symbol_search`.
 - Slope, in-sample R squared and a five-day projection table, plus a chart of the fitted line.
 - How it works page and a not-financial-advice notice on every page and in every JSON response.
