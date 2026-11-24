@@ -167,3 +167,18 @@ def test_search_upstream_errors_are_502(client, alpha_vantage):
     assert client.get("/symbol_search", query_string={"q": "apple"}).status_code == 502
     alpha_vantage({"SYMBOL_SEARCH": {"Error Message": "bad"}})
     assert client.get("/symbol_search", query_string={"q": "apple"}).status_code == 502
+
+
+def test_predict_includes_backtest_when_history_allows(client, yahoo):
+    yahoo(price_frame([100.0 + i % 9 for i in range(120)]))
+    data = client.get("/predict_stock", query_string={"symbol": "AAPL"}).get_json()
+    backtest = data["backtest"]
+    assert backtest["windows"] > 0
+    assert backtest["horizon_days"] == main.FORECAST_DAYS
+    assert set(backtest) == {"windows", "horizon_days", "line_mae", "naive_mae", "line_beat_naive_pct"}
+
+
+def test_predict_backtest_is_null_when_history_is_short(client, yahoo):
+    yahoo(price_frame([100.0 + i for i in range(22)]))
+    data = client.get("/predict_stock", query_string={"symbol": "AAPL"}).get_json()
+    assert data["backtest"] is None

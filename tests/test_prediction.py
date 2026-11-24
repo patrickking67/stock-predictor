@@ -82,3 +82,35 @@ def test_fetch_price_history_failure_is_data_source_error(yahoo):
     yahoo(ConnectionError("offline"))
     with pytest.raises(main.DataSourceError):
         main.fetch_price_history("AAPL")
+
+
+def test_backtest_perfect_line_has_zero_line_error():
+    closes = [10.0 + 2 * i for i in range(60)]
+    result = main.backtest_line(closes, days=5)
+    assert result["line_mae"] == pytest.approx(0.0, abs=1e-6)
+    assert result["naive_mae"] > 0
+    assert result["line_beat_naive_pct"] == 100.0
+    assert result["horizon_days"] == 5
+
+
+def test_backtest_flat_prices_tie_the_naive_guess():
+    result = main.backtest_line([50.0] * 60, days=5)
+    assert result["line_mae"] == pytest.approx(0.0, abs=1e-6)
+    assert result["naive_mae"] == 0.0
+    assert result["line_beat_naive_pct"] == 0.0  # a tie is not a win
+
+
+def test_backtest_counts_windows():
+    # origins 20, 25, ..., while origin + 5 <= 60
+    assert main.backtest_line([1.0 + i % 7 for i in range(60)], days=5)["windows"] == 8
+
+
+def test_backtest_returns_none_when_history_is_too_short():
+    assert main.backtest_line([1.0] * 22, days=5) is None
+
+
+def test_backtest_rejects_bad_arguments():
+    with pytest.raises(ValueError):
+        main.backtest_line([1.0] * 60, days=0)
+    with pytest.raises(ValueError):
+        main.backtest_line([1.0] * 60, stride=0)
