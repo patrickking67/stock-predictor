@@ -225,7 +225,13 @@ def index():
 
 @app.route("/about")
 def about():
-    return render_template("about.html", disclaimer=DISCLAIMER, forecast_days=FORECAST_DAYS)
+    return render_template(
+        "about.html",
+        disclaimer=DISCLAIMER,
+        forecast_days=FORECAST_DAYS,
+        min_history=MIN_HISTORY_POINTS,
+        stride=BACKTEST_STRIDE,
+    )
 
 
 @app.route("/symbol_search")

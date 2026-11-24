@@ -55,6 +55,12 @@
             <tbody id="projection-rows"></tbody>
         </table>
 
+        <section id="backtest" class="backtest" aria-labelledby="backtest-title" hidden>
+            <h3 id="backtest-title">How this line did on past prices</h3>
+            <p id="backtest-summary"></p>
+            <p class="meta">Walk-forward test on this same year of closes. Past results do not predict future ones.</p>
+        </section>
+
         <ul id="notices" class="notices"></ul>
         <p class="caveat">A straight line ignores earnings, news, interest rates and volatility. Real prices will not follow it. <a href="{{ url_for('about') }}">Read how it works and its limits.</a></p>
     </div>

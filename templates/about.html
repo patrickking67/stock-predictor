@@ -15,9 +15,13 @@
     <h2>What the numbers mean</h2>
     <p><strong>Slope</strong> is how many dollars per trading day the line rises or falls. <strong>R squared</strong> says how closely last year's prices hugged a straight line, from 0 (not at all) to 1 (perfectly). It is measured on the same data the line was fitted to, so it says nothing about how well the line predicts the future.</p>
 
+    <h2>The backtest</h2>
+    <p>After the line is drawn, the app replays the year. Starting {{ min_history }} days in, it fits a line to the prices seen so far, extends it {{ forecast_days }} days, and compares that with what the price did next. It then moves forward {{ stride }} days and repeats. As a yardstick it also scores a naive guess: the price stays where it last closed. The result is the average miss for each, and how often the line was closer.</p>
+    <p>On many stocks the naive guess wins, which is the point: a straight line is not better than doing nothing. The test uses the same data the page shows, so it is a sanity check and not evidence that the line will work.</p>
+
     <h2>Limits</h2>
     <ul>
-        <li>No accuracy has been measured. There is no backtest.</li>
+        <li>The only accuracy check is a walk-forward test on the same year of prices (see below). It says how the line did in the past, not how it will do.</li>
         <li>The model knows nothing except the date and last year's closes. Earnings, news, rates, volatility and the rest of the market are ignored.</li>
         <li>A straight line keeps going forever. Prices do not.</li>
         <li>Data can be delayed, missing or wrong, and the free data sources can rate limit or fail.</li>

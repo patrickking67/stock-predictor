@@ -18,7 +18,8 @@ def test_about_explains_the_model_and_limits(client):
     assert response.status_code == 200
     body = response.get_data(as_text=True)
     assert "LinearRegression" in body
-    assert "No accuracy has been measured." in body
+    assert "walk-forward" in body
+    assert "naive guess" in body
     assert "not financial advice" in body
 
 
