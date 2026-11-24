@@ -8,7 +8,7 @@ A small Flask app that fits one straight line through a year of daily stock pric
 > **Educational project, not financial advice. Predictions are not reliable.**
 > The "prediction" is a straight line through last year's closing prices. Nothing here is a recommendation to buy or sell. A walk-forward test on past prices is the only accuracy check, and it does not promise anything about the future.
 
-There is no hosted version. It runs locally.
+There is no hosted version of the app. It runs locally. A static demo on simulated prices, with the same line fit and backtest in JavaScript, is at https://patrickking67.github.io/stock-predictor/ (no real prices, no API key).
 
 ## Features
 
@@ -66,6 +66,7 @@ static/              style.css, script.js (vanilla JS + Chart.js from jsDelivr),
 tests/               pytest suite, fully offline (data sources are mocked)
 scripts/check.sh     the one check command (ruff, format check, JS syntax, pytest)
 scripts/dev.sh       local dev server on port 4110
+site/                static GitHub Pages demo (index.html, fit.js, demo.js) and its Node tests
 ```
 
 Routes:
@@ -83,11 +84,11 @@ Routes:
 scripts/check.sh
 ```
 
-Runs `ruff check`, `ruff format --check`, `node --check` on the JS (skipped if Node is missing) and `pytest`. The tests never touch the network. CI runs the same script on every push to main and every pull request.
+Runs `ruff check`, `ruff format --check`, `node --check` on the JS, the Node tests for `site/fit.js` (both skipped if Node is missing) and `pytest`. The tests never touch the network. CI runs the same script on every push to main and every pull request.
 
 ## Deploy
 
-Not deployed. `scripts/dev.sh` uses Flask's development server, which is for local use only.
+The Flask app is not deployed. Only `site/` is published, by `.github/workflows/pages.yml`. `scripts/dev.sh` uses Flask's development server, which is for local use only.
 
 ## License
 

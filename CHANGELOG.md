@@ -17,6 +17,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- Static GitHub Pages demo in `site/` that runs the line fit and backtest on simulated prices, with a Node test suite and a Pages deploy workflow.
 - `backtest_line` replays the year with a walk-forward test and compares the straight line with a "price stays put" guess. The result is in the `/predict_stock` response as `backtest`, shown on the main page and explained on the About page.
 - Works without an API key; Alpha Vantage is optional and proxied through `/symbol_search`.
 - Slope, in-sample R squared and a five-day projection table, plus a chart of the fitted line.
