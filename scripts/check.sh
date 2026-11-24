@@ -16,7 +16,9 @@ echo "== ruff format --check"
 "$PY" -m ruff format --check .
 if command -v node >/dev/null 2>&1; then
   echo "== node --check static/*.js"
-  for f in static/*.js; do node --check "$f"; done
+  for f in static/*.js site/*.js; do node --check "$f"; done
+  echo "== node --test site/tests"
+  node --test site/tests/fit.test.mjs
 else
   echo "== node not found, skipping JS syntax check"
 fi
